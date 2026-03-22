@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>ATC – Tour de contrôle</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ffffff' d='M31 6c1 0 2 .7 2 1.7l.4 7.6c6.2.9 10.9 6.1 10.9 12.5 0 4.9-2.8 9.2-6.9 11.4l1.8 20.2c.1 1.1-.8 2.1-2 2.1H26c-1.2 0-2.1-1-2-2.1l1.8-20.2c-4.1-2.2-6.9-6.5-6.9-11.4 0-6.4 4.7-11.6 10.9-12.5l.4-7.6C29 6.7 30 6 31 6Zm1 15.5c-3.7 0-6.7 3-6.7 6.7 0 3.7 3 6.7 6.7 6.7 3.7 0 6.7-3 6.7-6.7 0-3.7-3-6.7-6.7-6.7Z'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <div class="app" id="app" data-theme="dark">
+      <header class="topbar" role="banner">
+        <div class="brand" aria-label="Identité">
+          <div class="brand__mark" aria-hidden="true">ATC</div>
+          <div class="brand__text">
+            <div class="brand__title">Tour de contrôle</div>
+            <div class="brand__subtitle">GTA RP – Military</div>
+          </div>
+        </div>
+
+        <nav class="topnav" aria-label="Navigation principale">
+          <a class="topnav__link" href="#/accueil" data-route="accueil">Accueil</a>
+          <a class="topnav__link" href="#/dashboard" data-route="dashboard">Dashboard</a>
+          <a class="topnav__link" href="#/procedures" data-route="procedures">Procédures</a>
+          <a class="topnav__link" href="#/briefing" data-route="briefing">Briefing</a>
+        </nav>
+
+        <div class="topbar__right">
+          <button class="chip" id="themeToggle" type="button" aria-label="Basculer le thème">
+            <span class="chip__dot" aria-hidden="true"></span>
+            <span class="chip__text" id="themeLabel">Thème</span>
+          </button>
+          <div class="status" aria-label="Statut système">
+            <div class="status__item">
+              <div class="status__label">Zulu</div>
+              <div class="status__value" id="zuluTime">--:--:--Z</div>
+            </div>
+            <div class="status__item">
+              <div class="status__label">Session</div>
+              <div class="status__value" id="sessionBadge">Invité</div>
+            </div>
+          </div>
+          <button class="btn btn--ghost" id="loginBtn" type="button">Se connecter</button>
+        </div>
+      </header>
+
+      <main class="main" role="main">
+        <section class="page page--active" id="page-accueil" data-page="accueil">
+          <div class="hero">
+            <div class="hero__content">
+              <h1 class="hero__title">Centre ATC moderne, clair et rapide</h1>
+              <p class="hero__lead">
+                Un dashboard pensé pour le RP: gestion des vols, bandelettes, carte, actions, journal et procédures.
+              </p>
+              <div class="hero__actions">
+                <a class="btn btn--primary" href="#/dashboard">Ouvrir le dashboard</a>
+                <a class="btn btn--ghost" href="#/procedures">Voir les procédures</a>
+              </div>
+              <div class="hero__kpis" aria-label="Points clés">
+                <div class="kpi">
+                  <div class="kpi__value">Live</div>
+                  <div class="kpi__label">vols + actions</div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi__value">Rôles</div>
+                  <div class="kpi__label">ATC / TRMC / Admin</div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi__value">Audit</div>
+                  <div class="kpi__label">journal exportable</div>
+                </div>
+              </div>
+            </div>
+            <div class="hero__panel" aria-label="Aperçu interface">
+              <div class="preview">
+                <div class="preview__top">
+                  <div class="preview__pill"></div>
+                  <div class="preview__pill"></div>
+                  <div class="preview__pill"></div>
+                </div>
+                <div class="preview__body">
+                  <div class="preview__left"></div>
+                  <div class="preview__map"></div>
+                  <div class="preview__right"></div>
+                </div>
+              </div>
+              <div class="hint">
+                Astuce: le site est statique, donc simple à héberger (Nginx, Apache, OVH, GitHub Pages).
+              </div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <article class="card">
+              <h2 class="card__title">Gestion des vols</h2>
+              <p class="card__text">
+                Création de vols, statuts, priorités, assignation piste, callsign, type, route, remarks.
+              </p>
+            </article>
+            <article class="card">
+              <h2 class="card__title">Carte</h2>
+              <p class="card__text">
+                Fond OSM par défaut, possibilité de passer sur une carte image (GTA) via configuration.
+              </p>
+            </article>
+            <article class="card">
+              <h2 class="card__title">Procédures</h2>
+              <p class="card__text">
+                SOP, phraseologie, checklists, fréquences, schémas (à remplir selon votre unité).
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" id="page-dashboard" data-page="dashboard" aria-label="Dashboard ATC">
+          <div class="layout">
+            <aside class="panel panel--left" aria-label="Panneau vols">
+              <div class="panel__header">
+                <div>
+                  <div class="panel__title">Vols</div>
+                  <div class="panel__subtitle" id="flightCount">0 actifs</div>
+                </div>
+                <button class="btn btn--primary btn--sm" id="addFlightBtn" type="button">+ Vol</button>
+              </div>
+
+              <div class="filters" aria-label="Filtres vols">
+                <input class="input" id="flightSearch" type="search" placeholder="Rechercher (callsign, type, status)" />
+                <div class="segmented" role="tablist" aria-label="Filtre statut">
+                  <button class="segmented__btn segmented__btn--active" type="button" data-filter="all">Tous</button>
+                  <button class="segmented__btn" type="button" data-filter="ground">Sol</button>
+                  <button class="segmented__btn" type="button" data-filter="air">Air</button>
+                  <button class="segmented__btn" type="button" data-filter="emergency">Urgence</button>
+                </div>
+              </div>
+
+              <div class="list" id="flightList" role="list"></div>
+            </aside>
+
+            <section class="center" aria-label="Carte et contrôle">
+              <div class="center__top">
+                <div class="badge" id="activeAirportBadge">Aéroport: ZANC</div>
+                <div class="center__tools">
+                  <button class="btn btn--ghost btn--sm" id="mapModeBtn" type="button">Mode carte</button>
+                  <button class="btn btn--ghost btn--sm" id="exportBtn" type="button">Exporter journal</button>
+                  <button class="btn btn--ghost btn--sm" id="resetBtn" type="button">Réinitialiser</button>
+                </div>
+              </div>
+              <div class="runways" id="runways" aria-label="État des pistes"></div>
+              <div class="map" id="map" aria-label="Carte"></div>
+              <div class="center__bottom">
+                <div class="mini" aria-label="Raccourcis">
+                  <div class="mini__title">Raccourcis</div>
+                  <div class="mini__row">
+                    <kbd class="kbd">N</kbd><span>Nouveau vol</span>
+                    <kbd class="kbd">/</kbd><span>Rechercher</span>
+                    <kbd class="kbd">Esc</kbd><span>Fermer</span>
+                  </div>
+                </div>
+                <div class="mini mini--right" aria-label="Note opérationnelle">
+                  <div class="mini__title">Note</div>
+                  <div class="mini__text" id="opNote">Configurez vos procédures et fréquences dans l’onglet Procédures.</div>
+                </div>
+              </div>
+            </section>
+
+            <aside class="panel panel--right" aria-label="Détails et journal">
+              <div class="panel__header">
+                <div>
+                  <div class="panel__title">Bandelette</div>
+                  <div class="panel__subtitle" id="selectedCallsign">Aucun vol sélectionné</div>
+                </div>
+                <div class="pill" id="selectedStatus">—</div>
+              </div>
+
+              <div class="strip" id="strip">
+                <div class="strip__grid">
+                  <div class="field">
+                    <div class="field__label">Callsign</div>
+                    <input class="input" id="stripCallsign" autocomplete="off" />
+                  </div>
+                  <div class="field">
+                    <div class="field__label">Type</div>
+                    <input class="input" id="stripType" autocomplete="off" />
+                  </div>
+                  <div class="field">
+                    <div class="field__label">Statut</div>
+                    <select class="input" id="stripStatus">
+                      <option value="ground">Sol</option>
+                      <option value="air">Air</option>
+                      <option value="emergency">Urgence</option>
+                      <option value="closed">Clos</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <div class="field__label">Piste</div>
+                    <input class="input" id="stripRunway" placeholder="Ex: 09L" autocomplete="off" />
+                  </div>
+                  <div class="field field--full">
+                    <div class="field__label">Route / Notes</div>
+                    <textarea class="input textarea" id="stripRoute" rows="3"></textarea>
+                  </div>
+                </div>
+
+                <div class="actions" aria-label="Actions ATC">
+                  <button class="btn btn--primary" id="actTaxi" type="button">Clear Taxi</button>
+                  <button class="btn btn--primary" id="actTakeoff" type="button">Clear Takeoff</button>
+                  <button class="btn btn--ghost" id="actHold" type="button">Hold</button>
+                  <button class="btn btn--danger" id="actMayday" type="button">Mayday</button>
+                </div>
+              </div>
+
+              <div class="panel__divider"></div>
+
+              <div class="tabs" role="tablist" aria-label="Panneaux">
+                <button class="tabs__btn tabs__btn--active" type="button" data-tab="journal">Journal</button>
+                <button class="tabs__btn" type="button" data-tab="demandes">Demandes</button>
+                <button class="tabs__btn" type="button" data-tab="briefing">Briefing</button>
+              </div>
+
+              <div class="tab tab--active" id="tab-journal" data-tab="journal">
+                <div class="log" id="log"></div>
+              </div>
+              <div class="tab" id="tab-demandes" data-tab="demandes">
+                <div class="requests__top">
+                  <div class="requests__title">Demandes pilotes</div>
+                  <div class="requests__subtitle" id="requestsCount">0 en attente</div>
+                </div>
+                <div class="requests" id="requests"></div>
+              </div>
+              <div class="tab" id="tab-briefing" data-tab="briefing">
+                <div class="callout">
+                  <div class="callout__title">Briefing rapide</div>
+                  <div class="callout__text" id="briefingText">
+                    Ajoutez ici vos consignes du jour (meteo, NOTAM RP, exercices, zones actives).
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="page" id="page-procedures" data-page="procedures">
+          <div class="content">
+            <h1>Procédures</h1>
+            <div class="content__grid">
+              <article class="card card--wide">
+                <h2 class="card__title">SOP (à compléter)</h2>
+                <ul class="listy">
+                  <li>Rôles: TWR / GND / APP / TRMC</li>
+                  <li>Priorités: MEDEVAC &gt; SAR &gt; CAP &gt; Transport</li>
+                  <li>Phraseologie: courte, claire, standardisée</li>
+                  <li>Journal: toute clairance importante doit être tracée</li>
+                </ul>
+              </article>
+              <article class="card">
+                <h2 class="card__title">Fréquences</h2>
+                <div class="table">
+                  <div class="row"><div class="cell cell--muted">TWR</div><div class="cell">—</div></div>
+                  <div class="row"><div class="cell cell--muted">GND</div><div class="cell">—</div></div>
+                  <div class="row"><div class="cell cell--muted">APP</div><div class="cell">—</div></div>
+                  <div class="row"><div class="cell cell--muted">TRMC</div><div class="cell">—</div></div>
+                </div>
+              </article>
+              <article class="card">
+                <h2 class="card__title">Checklists</h2>
+                <div class="check">
+                  <label class="check__item"><input type="checkbox" /> Radio check</label>
+                  <label class="check__item"><input type="checkbox" /> Pistes actives</label>
+                  <label class="check__item"><input type="checkbox" /> Météo RP</label>
+                  <label class="check__item"><input type="checkbox" /> Zones actives</label>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-briefing" data-page="briefing">
+          <div class="content">
+            <h1>Briefing</h1>
+            <p class="muted">
+              Espace pour le briefing du jour. Ce contenu est local (stocké dans le navigateur) tant qu’aucun backend n’est branché.
+            </p>
+            <textarea class="input textarea" id="briefingEditor" rows="10" placeholder="Météo, NOTAM RP, objectifs, zones d'exercice..."></textarea>
+            <div class="row-actions">
+              <button class="btn btn--primary" id="saveBriefingBtn" type="button">Enregistrer</button>
+              <button class="btn btn--ghost" id="clearBriefingBtn" type="button">Effacer</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="modal modal--hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal__backdrop" data-close="true"></div>
+        <div class="modal__panel" role="document">
+          <div class="modal__header">
+            <div class="modal__title" id="modalTitle">Connexion</div>
+            <button class="iconbtn" type="button" data-close="true" aria-label="Fermer">×</button>
+          </div>
+          <div class="modal__body" id="modalBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="./assets/app.js"></script>
+  </body>
+</html>
