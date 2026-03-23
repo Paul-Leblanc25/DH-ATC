@@ -27,7 +27,6 @@
         </div>
 
         <nav class="topnav" aria-label="Navigation principale">
-          <a class="topnav__link" href="#/accueil" data-route="accueil">Accueil</a>
           <a class="topnav__link" href="#/dashboard" data-route="dashboard">Dashboard</a>
           <a class="topnav__link" href="#/procedures" data-route="procedures">Procédures</a>
           <a class="topnav__link" href="#/briefing" data-route="briefing">Briefing</a>
@@ -122,7 +121,19 @@
 
         <section class="page" id="page-dashboard" data-page="dashboard" aria-label="Dashboard ATC">
           <div class="layout">
-            <aside class="panel panel--left" aria-label="Panneau vols">
+            <section class="center" aria-label="Carte et contrôle">
+              <div class="center__top">
+                <div class="badge" id="activeAirportBadge">Aéroport: ZANC</div>
+                <div class="center__tools">
+                  <button class="btn btn--ghost btn--sm" id="exportBtn" type="button">Exporter journal</button>
+                  <button class="btn btn--ghost btn--sm" id="resetBtn" type="button">Réinitialiser</button>
+                </div>
+              </div>
+              <div class="runways" id="runways" aria-label="État des pistes"></div>
+              <div class="map" id="map" aria-label="Carte"></div>
+            </section>
+
+            <aside class="panel panel--right" aria-label="Détails et journal">
               <div class="panel__header">
                 <div>
                   <div class="panel__title">Vols</div>
@@ -132,7 +143,7 @@
               </div>
 
               <div class="filters" aria-label="Filtres vols">
-                <input class="input" id="flightSearch" type="search" placeholder="Rechercher (callsign, type, status)" />
+                <input class="input" id="flightSearch" type="search" placeholder="Rechercher (callsign, type, statut)" />
                 <div class="segmented" role="tablist" aria-label="Filtre statut">
                   <button class="segmented__btn segmented__btn--active" type="button" data-filter="all">Tous</button>
                   <button class="segmented__btn" type="button" data-filter="ground">Sol</button>
@@ -141,37 +152,10 @@
                 </div>
               </div>
 
-              <div class="list" id="flightList" role="list"></div>
-            </aside>
+              <div class="list list--flights" id="flightList" role="list"></div>
 
-            <section class="center" aria-label="Carte et contrôle">
-              <div class="center__top">
-                <div class="badge" id="activeAirportBadge">Aéroport: ZANC</div>
-                <div class="center__tools">
-                  <button class="btn btn--ghost btn--sm" id="mapModeBtn" type="button">Mode carte</button>
-                  <button class="btn btn--ghost btn--sm" id="exportBtn" type="button">Exporter journal</button>
-                  <button class="btn btn--ghost btn--sm" id="resetBtn" type="button">Réinitialiser</button>
-                </div>
-              </div>
-              <div class="runways" id="runways" aria-label="État des pistes"></div>
-              <div class="map" id="map" aria-label="Carte"></div>
-              <div class="center__bottom">
-                <div class="mini" aria-label="Raccourcis">
-                  <div class="mini__title">Raccourcis</div>
-                  <div class="mini__row">
-                    <kbd class="kbd">N</kbd><span>Nouveau vol</span>
-                    <kbd class="kbd">/</kbd><span>Rechercher</span>
-                    <kbd class="kbd">Esc</kbd><span>Fermer</span>
-                  </div>
-                </div>
-                <div class="mini mini--right" aria-label="Note opérationnelle">
-                  <div class="mini__title">Note</div>
-                  <div class="mini__text" id="opNote">Configurez vos procédures et fréquences dans l’onglet Procédures.</div>
-                </div>
-              </div>
-            </section>
+              <div class="panel__divider"></div>
 
-            <aside class="panel panel--right" aria-label="Détails et journal">
               <div class="panel__header">
                 <div>
                   <div class="panel__title">Bandelette</div>
@@ -204,7 +188,7 @@
                     <input class="input" id="stripRunway" placeholder="Ex: 09L" autocomplete="off" />
                   </div>
                   <div class="field field--full">
-                    <div class="field__label">Route / Notes</div>
+                    <div class="field__label">Plan de vol / Notes</div>
                     <textarea class="input textarea" id="stripRoute" rows="3"></textarea>
                   </div>
                 </div>

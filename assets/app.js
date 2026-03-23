@@ -16,10 +16,6 @@ const DEFAULT_CONFIG = {
   airport: "ZANC",
   map: {
     mode: "image",
-    osm: {
-      center: [33.9425, -118.4081],
-      zoom: 10,
-    },
     image: {
       url: "",
       bounds: [
@@ -216,6 +212,10 @@ function ensureState() {
   }
   if (!Array.isArray(appState.config?.runways)) {
     appState.config = { ...DEFAULT_CONFIG, ...appState.config, runways: DEFAULT_CONFIG.runways };
+    saveStorage(STORAGE_KEYS.config, appState.config);
+  }
+  if (appState.config?.map?.mode !== "image") {
+    appState.config = { ...DEFAULT_CONFIG, ...appState.config, map: { ...DEFAULT_CONFIG.map, ...(appState.config.map || {}), mode: "image" } };
     saveStorage(STORAGE_KEYS.config, appState.config);
   }
 }
@@ -651,84 +651,6 @@ function openAddFlightModal() {
   callsign.focus();
 }
 
-function openMapModeModal() {
-  const wrap = document.createElement("div");
-  wrap.className = "form";
-
-  const modeField = document.createElement("div");
-  modeField.className = "field";
-  modeField.innerHTML = `<div class="field__label">Mode carte</div>`;
-
-  const mode = document.createElement("select");
-  mode.className = "input";
-  mode.innerHTML = `
-    <option value="image">Image (GTA) — fixe</option>
-    <option value="osm">OSM (internet)</option>
-  `;
-  mode.value = appState.config.map.mode || "osm";
-  modeField.appendChild(mode);
-
-  const imgUrlField = document.createElement("div");
-  imgUrlField.className = "field";
-  imgUrlField.innerHTML = `<div class="field__label">URL image (mode Image)</div>`;
-  const imgUrl = document.createElement("input");
-  imgUrl.className = "input";
-  imgUrl.placeholder = "./assets/map/map.png";
-  imgUrl.value = appState.config.map.image.url || "";
-  imgUrlField.appendChild(imgUrl);
-
-  const boundsField = document.createElement("div");
-  boundsField.className = "field";
-  boundsField.innerHTML = `<div class="field__label">Bounds (mode Image) – format: [[y1,x1],[y2,x2]]</div>`;
-  const bounds = document.createElement("input");
-  bounds.className = "input";
-  bounds.value = JSON.stringify(appState.config.map.image.bounds);
-  boundsField.appendChild(bounds);
-
-  const notice = document.createElement("div");
-  notice.className = "notice";
-  notice.textContent =
-    "Mode Image: utilisez une carte GTA exportée (PNG/JPG). La carte est fixe (pas de zoom/déplacement). Les bounds définissent la taille de l'image en coordonnées simples (pixels).";
-
-  const actions = document.createElement("div");
-  actions.className = "form__actions";
-
-  const cancelBtn = document.createElement("button");
-  cancelBtn.className = "btn btn--ghost";
-  cancelBtn.type = "button";
-  cancelBtn.textContent = "Annuler";
-  cancelBtn.addEventListener("click", closeModal);
-
-  const saveBtn = document.createElement("button");
-  saveBtn.className = "btn btn--primary";
-  saveBtn.type = "button";
-  saveBtn.textContent = "Appliquer";
-  saveBtn.addEventListener("click", () => {
-    const nextMode = mode.value;
-    const next = structuredClone(appState.config);
-    next.map.mode = nextMode;
-    next.map.image.url = imgUrl.value.trim();
-    const parsedBounds = safeJsonParse(bounds.value, null);
-    if (Array.isArray(parsedBounds) && parsedBounds.length === 2) next.map.image.bounds = parsedBounds;
-    appState.config = next;
-    saveStorage(STORAGE_KEYS.config, appState.config);
-    closeModal();
-    ensureMap();
-    addLogEntry({ title: "Carte", text: `Mode: ${nextMode.toUpperCase()}` });
-  });
-
-  actions.appendChild(cancelBtn);
-  actions.appendChild(saveBtn);
-
-  wrap.appendChild(modeField);
-  wrap.appendChild(imgUrlField);
-  wrap.appendChild(boundsField);
-  wrap.appendChild(notice);
-  wrap.appendChild(actions);
-
-  openModal("Mode carte", wrap);
-}
-
 function bindTabs() {
   qsa(".tabs__btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -762,7 +684,6 @@ function bindActions() {
 
   qs("#loginBtn").addEventListener("click", openLoginModal);
   qs("#addFlightBtn").addEventListener("click", openAddFlightModal);
-  qs("#mapModeBtn").addEventListener("click", openMapModeModal);
 
   qs("#exportBtn").addEventListener("click", () => {
     downloadJson(`atc-log-${new Date().toISOString().slice(0, 10)}.json`, {
@@ -871,7 +792,7 @@ function ensureMap() {
     return;
   }
 
-  const mode = appState.config.map.mode || "osm";
+  const mode = "image";
   if (appState.mapMode === mode && appState.map && appState.mapLayer) {
     appState.map.invalidateSize();
     syncMarkers();
@@ -890,49 +811,38 @@ function ensureMap() {
     mapEl.innerHTML = "";
   }
 
-  if (mode === "image") {
-    const url = appState.config.map.image.url?.trim();
-    const bounds = appState.config.map.image.bounds;
-    if (!url) {
-      mapEl.innerHTML = `<div style="padding:14px;color:var(--muted)">Mode Image actif, mais aucune URL d'image n'est définie. Ouvre “Mode carte” et colle l’URL de ta carte.</div>`;
-      return;
-    }
-
-    const crs = window.L.CRS.Simple;
-    appState.map = window.L.map(mapEl, {
-      crs,
-      minZoom: appState.config.map.image.minZoom,
-      maxZoom: appState.config.map.image.maxZoom,
-      zoomControl: false,
-      dragging: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      touchZoom: false,
-      attributionControl: false,
-      inertia: false,
-    });
-    appState.mapOverlay = window.L.imageOverlay(url, bounds).addTo(appState.map);
-    appState.map.fitBounds(bounds);
-    try {
-      appState.map.setMaxBounds(bounds);
-    } catch {}
-    try {
-      appState.map.setZoom(appState.config.map.image.initialZoom);
-    } catch {}
-    appState.mapLayer = appState.mapOverlay;
-    appState.map.on("click", (e) => onMapClick(e.latlng));
-  } else {
-    const center = appState.config.map.osm.center;
-    const zoom = appState.config.map.osm.zoom;
-    appState.map = window.L.map(mapEl, { zoomControl: true });
-    appState.map.setView(center, zoom);
-    appState.mapLayer = window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap",
-    }).addTo(appState.map);
+  const url = appState.config.map.image.url?.trim();
+  const bounds = appState.config.map.image.bounds;
+  if (!url) {
+    mapEl.innerHTML = `<div style="padding:14px;color:var(--muted)">Aucune carte configurée. Mets ton image dans <b>assets/map/</b> (map.png / map.jpg) puis recharge.</div>`;
+    return;
   }
+
+  const crs = window.L.CRS.Simple;
+  appState.map = window.L.map(mapEl, {
+    crs,
+    minZoom: appState.config.map.image.minZoom,
+    maxZoom: appState.config.map.image.maxZoom,
+    zoomControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    touchZoom: false,
+    attributionControl: false,
+    inertia: false,
+  });
+  appState.mapOverlay = window.L.imageOverlay(url, bounds).addTo(appState.map);
+  appState.map.fitBounds(bounds);
+  try {
+    appState.map.setMaxBounds(bounds);
+  } catch {}
+  try {
+    appState.map.setZoom(appState.config.map.image.initialZoom);
+  } catch {}
+  appState.mapLayer = appState.mapOverlay;
+  appState.map.on("click", (e) => onMapClick(e.latlng));
 
   appState.map.invalidateSize();
   syncMarkers();
@@ -994,8 +904,31 @@ function focusMarker(flightId) {
 function bindRouter() {
   const go = () => {
     const route = getRoute();
-    const exists = qs(`[data-page="${route}"]`);
-    const finalRoute = exists ? route : "accueil";
+    if (route === "procedures") {
+      openProceduresModal();
+      try {
+        history.replaceState(null, "", "#/dashboard");
+      } catch {
+        window.location.hash = "#/dashboard";
+      }
+      return;
+    }
+    if (route === "briefing") {
+      setActivePage("dashboard");
+      ensureMap();
+      renderFlights();
+      renderStrip();
+      renderLog();
+      renderRunways();
+      renderRequests();
+      setActiveTab("briefing");
+      try {
+        history.replaceState(null, "", "#/dashboard");
+      } catch {}
+      return;
+    }
+
+    const finalRoute = "dashboard";
     setActivePage(finalRoute);
     if (finalRoute === "dashboard") {
       if (!appState.config?.map?.image?.url && (appState.config?.map?.mode === "image" || true)) {
@@ -1011,6 +944,22 @@ function bindRouter() {
   };
   window.addEventListener("hashchange", go);
   go();
+}
+
+function setActiveTab(tab) {
+  qsa(".tabs__btn").forEach((b) => b.classList.toggle("tabs__btn--active", b.dataset.tab === tab));
+  qsa(".tab").forEach((t) => t.classList.toggle("tab--active", t.dataset.tab === tab));
+}
+
+function openProceduresModal() {
+  const src = qs("#page-procedures .content");
+  if (!src) return;
+  const clone = src.cloneNode(true);
+  const editor = clone.querySelector("#briefingEditor");
+  if (editor) editor.remove();
+  const buttons = clone.querySelectorAll("#saveBriefingBtn, #clearBriefingBtn");
+  buttons.forEach((b) => b.remove());
+  openModal("Procédures", clone);
 }
 
 function initZuluClock() {

@@ -394,7 +394,7 @@ a {
 
 .layout {
   display: grid;
-  grid-template-columns: 360px 1fr 380px;
+  grid-template-columns: 1fr 420px;
   gap: 12px;
   align-items: stretch;
   min-height: calc(100vh - 110px);
@@ -411,7 +411,10 @@ a {
 }
 
 .panel--right {
-  grid-template-rows: auto 1fr auto auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  max-height: calc(100vh - 110px);
 }
 
 .panel__header {
@@ -422,6 +425,7 @@ a {
   gap: 10px;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg2), transparent 25%);
+  backdrop-filter: blur(6px);
 }
 
 .panel__title {
@@ -499,6 +503,10 @@ a {
 .list {
   padding: 10px;
   overflow: auto;
+}
+
+.list--flights {
+  max-height: 40vh;
 }
 
 .flight {
@@ -581,12 +589,11 @@ a {
 
 .center {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   gap: 10px;
 }
 
-.center__top,
-.center__bottom {
+.center__top {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -608,6 +615,7 @@ a {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
+  height: calc(100vh - 180px);
   min-height: 520px;
 }
 
@@ -941,12 +949,7 @@ a {
 
 @media (max-width: 1180px) {
   .layout {
-    grid-template-columns: 340px 1fr;
-    grid-template-rows: auto auto;
-  }
-  .panel--right {
-    grid-column: 1 / -1;
-    min-height: 520px;
+    grid-template-columns: 1fr 420px;
   }
 }
 
