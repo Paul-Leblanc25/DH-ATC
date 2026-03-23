@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark light" />
-    <title>MTAC – Tour de contrôle</title>
+    <title>ATC – Tour de contrôle</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ffffff' d='M31 6c1 0 2 .7 2 1.7l.4 7.6c6.2.9 10.9 6.1 10.9 12.5 0 4.9-2.8 9.2-6.9 11.4l1.8 20.2c.1 1.1-.8 2.1-2 2.1H26c-1.2 0-2.1-1-2-2.1l1.8-20.2c-4.1-2.2-6.9-6.5-6.9-11.4 0-6.4 4.7-11.6 10.9-12.5l.4-7.6C29 6.7 30 6 31 6Zm1 15.5c-3.7 0-6.7 3-6.7 6.7 0 3.7 3 6.7 6.7 6.7 3.7 0 6.7-3 6.7-6.7 0-3.7-3-6.7-6.7-6.7Z'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://unpkg.com" />
     <link
@@ -19,10 +19,10 @@
     <div class="app" id="app" data-theme="dark">
       <header class="topbar" role="banner">
         <div class="brand" aria-label="Identité">
-          <div class="brand__mark" aria-hidden="true">MTAC</div>
+          <div class="brand__mark" aria-hidden="true">ATC</div>
           <div class="brand__text">
             <div class="brand__title">Tour de contrôle</div>
-            <div class="brand__subtitle">Division Héxagonale – Military</div>
+            <div class="brand__subtitle">GTA RP – Military</div>
           </div>
         </div>
 
@@ -56,13 +56,13 @@
         <section class="page page--active" id="page-accueil" data-page="accueil">
           <div class="hero">
             <div class="hero__content">
-              <h1 class="hero__title">Centre MTAC moderne, clair et rapide</h1>
+              <h1 class="hero__title">Centre ATC moderne, clair et rapide</h1>
               <p class="hero__lead">
-                Un dashboard pensé pour la Division Héxagonale: gestion des vols, carte, actions, journal et procédures.
+                Un dashboard pensé pour le RP: gestion des vols, bandelettes, carte, actions, journal et procédures.
               </p>
               <div class="hero__actions">
                 <a class="btn btn--primary" href="#/dashboard">Ouvrir le dashboard</a>
-                <a class="btn btn--ghost" href="#/procedures">Voir les vols en cours</a>
+                <a class="btn btn--ghost" href="#/procedures">Voir les procédures</a>
               </div>
               <div class="hero__kpis" aria-label="Points clés">
                 <div class="kpi">
@@ -71,7 +71,7 @@
                 </div>
                 <div class="kpi">
                   <div class="kpi__value">Rôles</div>
-                  <div class="kpi__label">MTAC / TRMC / Admin</div>
+                  <div class="kpi__label">ATC / TRMC / Admin</div>
                 </div>
                 <div class="kpi">
                   <div class="kpi__value">Audit</div>
@@ -93,6 +93,7 @@
                 </div>
               </div>
               <div class="hint">
+                Astuce: le site est statique, donc simple à héberger (Nginx, Apache, OVH, GitHub Pages).
               </div>
             </div>
           </div>
@@ -253,7 +254,7 @@
               <article class="card card--wide">
                 <h2 class="card__title">SOP (à compléter)</h2>
                 <ul class="listy">
-                  <li>Rôles: SSO / GND / APP / TRMC</li>
+                  <li>Rôles: TWR / GND / APP / TRMC</li>
                   <li>Priorités: MEDEVAC &gt; SAR &gt; CAP &gt; Transport</li>
                   <li>Phraseologie: courte, claire, standardisée</li>
                   <li>Journal: toute clairance importante doit être tracée</li>
@@ -273,7 +274,7 @@
                 <div class="check">
                   <label class="check__item"><input type="checkbox" /> Radio check</label>
                   <label class="check__item"><input type="checkbox" /> Pistes actives</label>
-                  <label class="check__item"><input type="checkbox" /> Météo</label>
+                  <label class="check__item"><input type="checkbox" /> Météo RP</label>
                   <label class="check__item"><input type="checkbox" /> Zones actives</label>
                 </div>
               </article>
