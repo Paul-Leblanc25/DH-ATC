@@ -673,7 +673,7 @@ function openMapModeModal() {
   imgUrlField.innerHTML = `<div class="field__label">URL image (mode Image)</div>`;
   const imgUrl = document.createElement("input");
   imgUrl.className = "input";
-  imgUrl.placeholder = "https://.../map.png";
+  imgUrl.placeholder = "./assets/map/map.png";
   imgUrl.value = appState.config.map.image.url || "";
   imgUrlField.appendChild(imgUrl);
 
@@ -998,6 +998,9 @@ function bindRouter() {
     const finalRoute = exists ? route : "accueil";
     setActivePage(finalRoute);
     if (finalRoute === "dashboard") {
+      if (!appState.config?.map?.image?.url && (appState.config?.map?.mode === "image" || true)) {
+        detectLocalMap();
+      }
       ensureMap();
       renderFlights();
       renderStrip();
@@ -1547,4 +1550,47 @@ function syncRunwayLayers() {
     }
     appState.runwayLayers.delete(id);
   }
+}
+
+function loadImageDimensions(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+    img.onerror = reject;
+    img.src = url + (url.includes("?") ? "" : `?v=${Date.now()}`); // no-cache
+  });
+}
+
+function setImageConfigFromSize(url, width, height) {
+  if (!width || !height) return false;
+  const next = structuredClone(appState.config);
+  next.map.mode = "image";
+  next.map.image.url = url;
+  next.map.image.bounds = [
+    [0, 0],
+    [height, width],
+  ];
+  next.map.image.minZoom = 0;
+  next.map.image.maxZoom = 0;
+  next.map.image.initialZoom = 0;
+  appState.config = next;
+  saveStorage(STORAGE_KEYS.config, appState.config);
+  return true;
+}
+
+function detectLocalMap() {
+  if (appState.config?.map?.image?.url) return;
+  const candidates = ["./assets/map/map.png", "./assets/map/map.jpg", "./assets/map/map.jpeg"];
+  const tryNext = (i) => {
+    if (i >= candidates.length) return;
+    const url = candidates[i];
+    loadImageDimensions(url)
+      .then(({ width, height }) => {
+        if (setImageConfigFromSize(url, width, height)) {
+          ensureMap();
+        }
+      })
+      .catch(() => tryNext(i + 1));
+  };
+  tryNext(0);
 }
